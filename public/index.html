@@ -1082,8 +1082,7 @@ function setFeeMode(mode) {
   feeCalc();
 }
 
-function fR(n, d=2) { return Math.round(n * Math.pow(10,d)) / Math.pow(10,d); }
-function fC(n, d=2) { return fR(n,d).toLocaleString('en-IN', { minimumFractionDigits:d, maximumFractionDigits:d }); }
+function fC(n, d=3) { return Number(n).toLocaleString('en-IN', { minimumFractionDigits:d, maximumFractionDigits:d }); }
 
 function feeCalc() {
   const amount   = parseFloat(document.getElementById('fee-amount').value)   || 0;
