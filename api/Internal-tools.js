@@ -17,7 +17,7 @@ const CORS = {
   "Access-Control-Allow-Headers": "Content-Type, SOAPAction, Authorization",
 };
 
-export default function handler(req, res) {
+module.exports = function handler(req, res) {
   // Set CORS headers on every response
   Object.entries(CORS).forEach(([k, v]) => res.setHeader(k, v));
 
