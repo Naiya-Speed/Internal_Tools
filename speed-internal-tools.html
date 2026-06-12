@@ -1,0 +1,1223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Speed Internal Tools</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.0.0/tabler-icons.min.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:        #f4f3ef;
+      --surface:   #ffffff;
+      --surface2:  #eeede8;
+      --border:    rgba(0,0,0,0.09);
+      --border2:   rgba(0,0,0,0.16);
+      --text:      #18180f;
+      --text2:     #5c5b52;
+      --text3:     #9a9891;
+      --blue-bg:   #e6f1fb; --blue-t: #0c447c; --blue-b: #185fa5;
+      --green-bg:  #eaf3de; --green-t: #27500a; --green-b: #3b6d11;
+      --amber-bg:  #faeeda; --amber-t: #633806; --amber-b: #ba7517;
+      --red-bg:    #fcebeb; --red-t:   #a32d2d; --red-b:   #e24b4a;
+      --teal-bg:   #e1f5ee; --teal-t:  #085041; --teal-b:  #0f6e56;
+      --pink-bg:   #fbeaf0; --pink-t:  #4b1528; --pink-b:  #993556;
+      --gray-bg:   #e8e7e1; --gray-t:  #444441; --gray-b:  #5f5e5a;
+      --purple-bg: #eeedfe; --purple-t: #26215c; --purple-b: #534ab7;
+      --success: #3b6d11; --warn: #ba7517; --danger: #a32d2d; --info: #185fa5;
+      --radius: 10px; --radius-sm: 7px;
+      --font:  'IBM Plex Sans', sans-serif;
+      --mono:  'IBM Plex Mono', monospace;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #14140e; --surface: #1e1e17; --surface2: #272720;
+        --border: rgba(255,255,255,0.07); --border2: rgba(255,255,255,0.14);
+        --text: #f0efe8; --text2: #9a9891; --text3: #5c5b52;
+        --blue-bg: #042c53; --blue-t: #b5d4f4; --blue-b: #378add;
+        --green-bg: #173404; --green-t: #c0dd97; --green-b: #639922;
+        --amber-bg: #412402; --amber-t: #fac775; --amber-b: #ef9f27;
+        --red-bg: #501313; --red-t: #f09595; --red-b: #e24b4a;
+        --teal-bg: #04342c; --teal-t: #9fe1cb; --teal-b: #1d9e75;
+        --pink-bg: #4b1528; --pink-t: #f4c0d1; --pink-b: #d4537e;
+        --gray-bg: #2c2c2a; --gray-t: #d3d1c7; --gray-b: #888780;
+        --purple-bg: #26215c; --purple-t: #cecbf6; --purple-b: #7f77dd;
+        --success: #97c459; --warn: #ef9f27; --danger: #f09595; --info: #85b7eb;
+      }
+    }
+    html, body { height: 100%; }
+    body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; display: flex; margin: 0; padding: 0; }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: 210px; min-width: 210px; flex-shrink: 0;
+      background: var(--surface); border-right: 0.5px solid var(--border2);
+      display: flex; flex-direction: column;
+      min-height: 100vh; position: sticky; top: 0; height: 100vh; overflow-y: auto;
+    }
+    .sidebar-logo { padding: 1.25rem 1.25rem 1rem; border-bottom: 0.5px solid var(--border); }
+    .sidebar-logo h2 { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 2px; }
+    .sidebar-logo p  { font-size: 11px; color: var(--text3); }
+    .nav-section-label {
+      font-size: 10px; font-weight: 500; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--text3);
+      padding: 1rem 1.25rem 0.4rem;
+    }
+    .nav-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 1.25rem 9px 1rem;
+      cursor: pointer; user-select: none;
+      font-size: 13px; color: var(--text2);
+      border-left: 2.5px solid transparent;
+      transition: background .12s, color .12s, border-color .12s;
+      text-decoration: none;
+    }
+    .nav-item:hover { background: var(--surface2); color: var(--text); }
+    .nav-item.active {
+      background: var(--surface2); color: var(--text); font-weight: 500;
+      border-left-color: var(--accent, var(--blue-b));
+    }
+    .nav-item i { font-size: 16px; flex-shrink: 0; color: inherit; }
+    .nav-badge {
+      margin-left: auto; font-size: 10px; font-family: var(--mono);
+      padding: 1px 6px; border-radius: 99px;
+      background: var(--surface2); color: var(--text3);
+      border: 0.5px solid var(--border);
+    }
+    .nav-item.active .nav-badge { background: var(--badge-bg, var(--blue-bg)); color: var(--badge-t, var(--blue-t)); border-color: var(--accent, var(--blue-b)); }
+
+    /* ── Main content ── */
+    .main { flex: 1; min-width: 0; padding: 2rem 2rem 4rem; overflow-y: auto; }
+    .panel { display: none; max-width: 780px; }
+    .panel.active { display: block; }
+    .page { max-width: 780px; margin: 0 auto; }
+
+    /* ── Header ── */
+    .page-head { display: flex; align-items: center; gap: 12px; margin-bottom: 2rem; }
+    .page-head h1 { font-size: 20px; font-weight: 500; color: var(--text); }
+    .page-head p  { font-size: 13px; color: var(--text2); margin-top: 2px; }
+
+    /* ── Section label ── */
+    .section-label {
+      font-size: 11px; font-weight: 500; letter-spacing: 0.07em;
+      text-transform: uppercase; color: var(--text3);
+      margin-bottom: 10px; margin-top: 1.5rem;
+    }
+
+    /* ── Script buttons grid ── */
+    .scripts-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
+    .script-btn {
+      background: var(--surface); border: 0.5px solid var(--border);
+      border-radius: var(--radius); padding: 14px 16px;
+      cursor: pointer; text-align: left; position: relative; user-select: none;
+      transition: border-color .14s, background .14s;
+    }
+    .script-btn:hover  { border-color: var(--border2); background: var(--surface2); }
+    .script-btn.active { border: 1.5px solid var(--active-border, var(--blue-b)); background: var(--active-bg, var(--blue-bg)); }
+    .sb-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+    .sb-flag { font-size: 18px; line-height: 1; }
+    .sb-check {
+      width: 16px; height: 16px; border-radius: 50%;
+      border: 1.5px solid var(--border2); background: var(--surface);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 9px; color: #fff; transition: all .14s; flex-shrink: 0;
+    }
+    .script-btn.active .sb-check { background: var(--active-border, var(--blue-b)); border-color: var(--active-border, var(--blue-b)); }
+    .sb-check i { opacity: 0; transition: opacity .12s; }
+    .script-btn.active .sb-check i { opacity: 1; }
+    .sb-name { font-size: 14px; font-weight: 500; color: var(--text); margin-bottom: 3px; }
+    .sb-meta { font-size: 11px; color: var(--text2); font-family: var(--mono); }
+    .sb-steps { display: flex; gap: 4px; margin-top: 8px; flex-wrap: wrap; }
+    .step-pill {
+      font-size: 10px; font-family: var(--mono);
+      padding: 2px 7px; border-radius: 99px;
+      background: var(--surface2); color: var(--text2); border: 0.5px solid var(--border);
+    }
+    .script-btn.active .step-pill { background: rgba(255,255,255,0.25); }
+
+    /* ── Config panel ── */
+    .config-panel { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 1.25rem; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    @media (max-width: 540px) { .form-row { grid-template-columns: 1fr; } }
+    .form-group { display: flex; flex-direction: column; gap: 5px; }
+    .form-group label { font-size: 12px; color: var(--text2); display: flex; align-items: center; gap: 5px; }
+    .form-group label i { font-size: 13px; }
+    .form-group input, .form-group select {
+      font-family: var(--mono); font-size: 12px;
+      background: var(--surface2); border: 0.5px solid var(--border);
+      border-radius: var(--radius-sm); padding: 0 11px; height: 34px;
+      color: var(--text); outline: none; width: 100%; transition: border-color .14s;
+    }
+    .form-group input:focus, .form-group select:focus { border-color: var(--blue-b); }
+    .form-group input::placeholder { color: var(--text3); }
+    .form-group select option { background: var(--surface); }
+    .divider { height: 0.5px; background: var(--border); margin: 1rem 0; }
+    .run-row { display: flex; align-items: center; gap: 10px; justify-content: flex-end; }
+    .run-hint { font-size: 12px; color: var(--text3); flex: 1; font-family: var(--mono); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .run-btn {
+      display: flex; align-items: center; gap: 7px;
+      padding: 0 20px; height: 36px; border-radius: var(--radius-sm);
+      font-size: 13px; font-weight: 500; font-family: var(--font);
+      background: var(--text); color: var(--bg);
+      border: none; cursor: pointer; white-space: nowrap;
+      transition: opacity .14s, transform .1s;
+    }
+    .run-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+    .run-btn:not(:disabled):hover { opacity: 0.82; }
+    .run-btn:not(:disabled):active { transform: scale(0.97); }
+
+    /* ── Console ── */
+    .console-wrap { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+    .console-top { display: flex; align-items: center; justify-content: space-between; padding: 8px 14px; border-bottom: 0.5px solid var(--border); }
+    .console-top-l { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text2); }
+    .console-clear {
+      font-size: 11px; font-family: var(--font); color: var(--text2);
+      background: none; border: 0.5px solid var(--border);
+      border-radius: var(--radius-sm); padding: 3px 10px; cursor: pointer; transition: color .12s;
+    }
+    .console-clear:hover { color: var(--text); border-color: var(--border2); }
+    .console-body { padding: 12px 14px; min-height: 140px; max-height: 260px; overflow-y: auto; font-family: var(--mono); font-size: 12px; line-height: 1.8; }
+    .log { display: block; }
+    .ts  { color: var(--text3); margin-right: 8px; }
+    .li  { color: var(--info); }
+    .ls  { color: var(--success); }
+    .le  { color: var(--danger); }
+    .lw  { color: var(--warn); }
+    .lc  { color: var(--text2); }
+    .lp  { color: var(--text3); font-style: italic; }
+    .status-bar { display: flex; align-items: center; gap: 8px; padding: 7px 14px; border-top: 0.5px solid var(--border); font-size: 11px; color: var(--text2); font-family: var(--mono); }
+    .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--border2); display: inline-block; }
+    .dot.run  { background: var(--warn); animation: blink .9s infinite alternate; }
+    .dot.ok   { background: var(--success); }
+    .dot.err  { background: var(--danger); }
+    @keyframes blink { from { opacity:1; } to { opacity:.2; } }
+
+    /* ── Account rows ── */
+    .acc-default-row {
+      display: flex; align-items: center; gap: 12px; padding: 10px 12px;
+      background: var(--surface2); border: 0.5px solid var(--border); border-radius: var(--radius-sm);
+    }
+    .acc-badge {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: var(--blue-bg); border: 0.5px solid var(--blue-b);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--blue-t); font-size: 15px; flex-shrink: 0;
+    }
+    .acc-info { flex: 1; min-width: 0; }
+    .acc-email { font-size: 13px; font-weight: 500; color: var(--text); font-family: var(--mono); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .acc-ids   { font-size: 11px; color: var(--text3); font-family: var(--mono); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .toggle-custom-btn {
+      display: flex; align-items: center; gap: 5px;
+      font-size: 11px; font-family: var(--font); color: var(--text2);
+      background: none; border: 0.5px solid var(--border); border-radius: var(--radius-sm);
+      padding: 5px 10px; cursor: pointer; white-space: nowrap; flex-shrink: 0;
+      transition: color .12s, border-color .12s;
+    }
+    .toggle-custom-btn:hover { color: var(--text); border-color: var(--border2); }
+    .custom-acc-header { display: flex; align-items: center; justify-content: space-between; }
+
+    /* ── Note ── */
+    .note {
+      margin-top: 1.25rem; font-size: 12px; color: var(--text3);
+      display: flex; align-items: flex-start; gap: 7px;
+      padding: 10px 13px; border: 0.5px solid var(--border);
+      border-radius: var(--radius-sm); background: var(--surface); line-height: 1.6;
+    }
+    .note i { flex-shrink: 0; font-size: 14px; margin-top: 1px; }
+    code { font-family: var(--mono); font-size: 11px; background: var(--surface2); padding: 1px 5px; border-radius: 4px; border: 0.5px solid var(--border); color: var(--text2); }
+
+    /* ── GreenDot cards ── */
+    .gd-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+    .gd-card {
+      background: var(--surface); border: 0.5px solid var(--border);
+      border-radius: var(--radius); padding: 14px 16px;
+      cursor: pointer; user-select: none;
+      transition: border-color .14s, background .14s; position: relative;
+    }
+    .gd-card:hover { border-color: var(--border2); background: var(--surface2); }
+    .gd-card.active { border: 1.5px solid var(--green-b); background: var(--green-bg); }
+    .gd-card .sb-check { position: absolute; top: 10px; right: 10px; width:16px; height:16px; border-radius:50%; border:1.5px solid var(--border2); background:var(--surface); display:flex; align-items:center; justify-content:center; font-size:9px; color:#fff; transition:all .14s; }
+    .gd-card.active .sb-check { background: var(--green-b); border-color: var(--green-b); }
+    .gd-card .sb-check i { opacity:0; transition: opacity .12s; }
+    .gd-card.active .sb-check i { opacity:1; }
+    .gd-icon { font-size: 20px; margin-bottom: 8px; }
+    .gd-name { font-size: 14px; font-weight: 500; color: var(--text); margin-bottom: 3px; }
+    .gd-meta { font-size: 11px; color: var(--text2); font-family: var(--mono); margin-bottom: 8px; }
+
+    /* ── Proxy status ── */
+    .proxy-status {
+      display: flex; align-items: center; gap: 8px; padding: 8px 12px; margin-bottom: 12px;
+      border: 0.5px solid var(--border); border-radius: var(--radius-sm);
+      background: var(--surface); font-size: 12px; color: var(--text2); font-family: var(--mono);
+    }
+    .proxy-btn {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 11px; font-family: var(--font); color: var(--text2);
+      background: none; border: 0.5px solid var(--border);
+      border-radius: var(--radius-sm); padding: 4px 10px; cursor: pointer;
+      transition: color .12s, border-color .12s, background .12s; white-space: nowrap;
+    }
+    .proxy-btn:hover { color: var(--text); border-color: var(--border2); }
+    .proxy-btn-start { color: var(--danger); border-color: var(--danger); }
+    .proxy-btn-start:hover { background: var(--red-bg); }
+    .modal-step {
+      display: flex; gap: 12px; align-items: flex-start;
+      padding: 10px 0; border-top: 0.5px solid var(--border);
+      font-size: 13px; color: var(--text); line-height: 1.6;
+    }
+    .modal-step-num {
+      width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
+      background: var(--green-bg); color: var(--green-t); border: 0.5px solid var(--green-b);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 500; margin-top: 1px;
+    }
+    .modal-code { font-family: var(--mono); font-size: 11px; background: var(--surface2); padding: 2px 7px; border-radius: 4px; border: 0.5px solid var(--border); color: var(--text2); }
+
+    /* ══════════════════════════════════════════
+       Fee Calculator panel styles
+    ══════════════════════════════════════════ */
+    #panel-fee .page-head { margin-bottom: 1.5rem; }
+
+    /* Mode toggle */
+    .mode-toggle { display: flex; gap: 6px; margin-bottom: 1.5rem; }
+    .mode-btn {
+      font-size: 12px; font-family: var(--mono); padding: 5px 14px;
+      border-radius: 99px; border: 0.5px solid var(--border);
+      background: var(--surface); color: var(--text2); cursor: pointer;
+      transition: background .12s, color .12s, border-color .12s;
+    }
+    .mode-btn:hover { border-color: var(--border2); color: var(--text); }
+    .mode-btn.active { background: var(--purple-bg); color: var(--purple-t); border-color: var(--purple-b); font-weight: 500; }
+
+    /* Input card */
+    .fee-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 1.25rem; margin-bottom: 0.75rem; }
+    .fee-input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    @media (max-width: 540px) { .fee-input-grid { grid-template-columns: 1fr; } }
+    .fee-field { display: flex; flex-direction: column; gap: 5px; }
+    .fee-field label { font-size: 12px; color: var(--text2); }
+    .fee-field input {
+      font-family: var(--mono); font-size: 13px;
+      background: var(--surface2); border: 0.5px solid var(--border);
+      border-radius: var(--radius-sm); padding: 0 11px; height: 36px;
+      color: var(--text); outline: none; width: 100%; transition: border-color .14s;
+    }
+    .fee-field input:focus { border-color: var(--purple-b); }
+    .fee-sub-divider { border: none; border-top: 1px dashed var(--border); margin: 12px 0; }
+    .fee-sub-head {
+      font-size: 10px; color: var(--text3); margin-bottom: 10px;
+      font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.07em;
+    }
+
+    /* Metrics row */
+    .fee-metrics-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 10px; }
+    .fee-metric {
+      background: var(--surface); border: 0.5px solid var(--border);
+      border-radius: var(--radius); padding: 12px 14px;
+    }
+    .fee-metric .fm-label { font-family: var(--mono); font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+    .fee-metric .fm-val   { font-family: var(--mono); font-size: 16px; font-weight: 500; color: var(--text); }
+    .fee-metric .fm-sub   { font-size: 10px; color: var(--text3); margin-top: 3px; }
+
+    /* Fees card */
+    .fee-fees-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 1rem 1.25rem; margin-bottom: 10px; }
+    .fee-fees-card .ff-total-label { font-family: var(--mono); font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 5px; }
+    .fee-fees-card .ff-total-val   { font-family: var(--mono); font-size: 20px; font-weight: 500; color: var(--danger); margin-bottom: 12px; }
+    .fee-split { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+    .fee-chip {
+      background: var(--red-bg); border: 0.5px solid rgba(227,75,74,0.25);
+      border-radius: var(--radius-sm); padding: 10px 14px;
+    }
+    .fee-chip .fc-label { font-size: 10px; color: var(--red-t); opacity: 0.75; text-transform: uppercase; letter-spacing: 0.06em; font-family: var(--mono); margin-bottom: 4px; }
+    .fee-chip .fc-val   { font-family: var(--mono); font-size: 16px; font-weight: 500; color: var(--danger); margin-bottom: 3px; }
+    .fee-chip .fc-sub   { font-size: 10px; color: var(--danger); opacity: 0.6; }
+
+    /* Three blocks */
+    .fee-three-blocks { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 10px; }
+    @media (max-width: 540px) { .fee-three-blocks { grid-template-columns: 1fr; } }
+    .tb-chip { background: var(--surface2); border: 0.5px solid var(--border); border-radius: var(--radius-sm); padding: 10px 12px; }
+    .tb-chip.tb-total { background: var(--red-bg); border-color: rgba(227,75,74,0.25); }
+    .tb-chip .tb-label { font-family: var(--mono); font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 5px; }
+    .tb-chip.tb-total .tb-label { color: var(--danger); opacity: 0.75; }
+    .tb-chip .tb-val   { font-family: var(--mono); font-size: 15px; font-weight: 500; color: var(--danger); margin-bottom: 3px; }
+    .tb-chip .tb-sub   { font-size: 10px; color: var(--text3); }
+    .tb-chip.tb-total .tb-sub { color: var(--danger); opacity: 0.6; }
+
+    /* Net card */
+    .fee-net-card {
+      background: var(--green-bg); border: 0.5px solid var(--green-b);
+      border-radius: var(--radius); padding: 1rem 1.25rem; margin-bottom: 10px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .fee-net-card .fn-label { font-size: 13px; font-weight: 500; color: var(--success); }
+    .fee-net-card .fn-sub   { font-size: 11px; color: var(--success); opacity: 0.7; margin-top: 3px; }
+    .fee-net-card .fn-val   { font-family: var(--mono); font-size: 24px; font-weight: 500; color: var(--success); }
+
+    /* Breakdown */
+    .fee-breakdown-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 0.25rem 1.25rem; margin-bottom: 1rem; }
+    .fee-brow { display: flex; justify-content: space-between; align-items: center; padding: 9px 0; border-bottom: 0.5px solid var(--border); }
+    .fee-brow:last-child { border-bottom: none; }
+    .fee-brow .fb-lbl { font-size: 13px; color: var(--text2); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .fee-brow.fb-total .fb-lbl { font-weight: 500; color: var(--text); font-size: 13px; }
+    .fee-brow .fb-val { font-family: var(--mono); font-size: 13px; font-weight: 500; color: var(--text); white-space: nowrap; margin-left: 8px; }
+    .fee-brow.fb-total .fb-val { font-size: 14px; }
+    .fb-val.neg { color: var(--danger); }
+    .fb-val.pos { color: var(--success); }
+    .fee-inline-div { border: none; border-top: 1px dashed var(--border); margin: 3px 0; }
+
+    /* Shared dot for fee panel (overrides .dot from launcher) */
+    .fee-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+    .fee-dot.d { background: var(--border2); }
+    .fee-dot.r { background: var(--danger); opacity: 0.55; }
+    .fee-dot.g { background: var(--success); opacity: 0.6; }
+    .fee-dot.b { background: var(--info); opacity: 0.5; }
+
+    /* Badges */
+    .fbadge { font-size: 9px; padding: 1px 7px; border-radius: 99px; font-family: var(--mono); }
+    .fbadge-info    { background: var(--blue-bg);  color: var(--blue-t);  border: 0.5px solid var(--blue-b); }
+    .fbadge-warn    { background: var(--amber-bg); color: var(--amber-t); border: 0.5px solid var(--amber-b); }
+    .fbadge-success { background: var(--green-bg); color: var(--green-t); border: 0.5px solid var(--green-b); }
+
+    /* Fee footer */
+    .fee-footer { margin-top: 2rem; padding-top: 1rem; border-top: 0.5px solid var(--border); font-size: 11px; color: var(--text3); font-family: var(--mono); text-align: center; }
+  </style>
+</head>
+<body>
+
+<!-- ── Sidebar ── -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <h2>⚡ Speed</h2>
+    <p>Internal tools</p>
+  </div>
+  <div class="nav-section-label">Deposit</div>
+  <div class="nav-item active" data-panel="bridge" onclick="switchPanel('bridge')" style="--accent:var(--blue-b);--badge-bg:var(--blue-bg);--badge-t:var(--blue-t)">
+    <i class="ti ti-bridge"></i>
+    Bridge Deposit
+    <span class="nav-badge">8</span>
+  </div>
+  <div class="nav-item" data-panel="greendot" onclick="switchPanel('greendot')" style="--accent:var(--green-b);--badge-bg:var(--green-bg);--badge-t:var(--green-t)">
+    <i class="ti ti-leaf"></i>
+    GreenDot
+    <span class="nav-badge">3</span>
+  </div>
+  <div class="nav-section-label">Calculators</div>
+  <div class="nav-item" data-panel="fee" onclick="switchPanel('fee')" style="--accent:var(--purple-b);--badge-bg:var(--purple-bg);--badge-t:var(--purple-t)">
+    <i class="ti ti-calculator"></i>
+    Fee Calculator
+  </div>
+</aside>
+
+<!-- ── Main ── -->
+<main class="main">
+
+<!-- ══ Bridge Panel ══ -->
+<div class="panel active" id="panel-bridge">
+  <div class="page-head">
+    <div>
+      <h1>Deposit Launcher</h1>
+      <p>Bridge callbacks &amp; GreenDot deposits against <code>tryspeed.dev</code></p>
+    </div>
+  </div>
+
+  <div class="section-label">Bridge — select deposit type</div>
+  <div class="scripts-grid" id="scriptsGrid"></div>
+
+  <div class="section-label">Configure run</div>
+  <div class="config-panel">
+    <div id="defaultAccBlock">
+      <div class="acc-default-row">
+        <div class="acc-badge"><i class="ti ti-user-check" aria-hidden="true"></i></div>
+        <div class="acc-info">
+          <div class="acc-email" id="defEmail" style="color:var(--text3);font-style:italic;">Select a deposit type to see the default account</div>
+          <div class="acc-ids" id="defIds"></div>
+        </div>
+        <button class="toggle-custom-btn" id="toggleCustomBtn" onclick="toggleCustom()" aria-expanded="false">
+          <i class="ti ti-pencil" style="font-size:13px" aria-hidden="true"></i> Use different account
+        </button>
+      </div>
+    </div>
+    <div id="customAccBlock" style="display:none; margin-top:12px;">
+      <div class="custom-acc-header">
+        <span style="font-size:12px;color:var(--text2);font-weight:500;">Custom account</span>
+        <button class="toggle-custom-btn" onclick="toggleCustom()" style="color:var(--danger)">
+          <i class="ti ti-x" style="font-size:12px" aria-hidden="true"></i> Cancel
+        </button>
+      </div>
+      <div class="form-row" style="margin-top:8px;">
+        <div class="form-group">
+          <label><i class="ti ti-at" aria-hidden="true"></i> Email</label>
+          <input type="text" id="customEmail" placeholder="naiya++000xxx@tryspeed.com" spellcheck="false" autocomplete="off" oninput="onCustomInput()" />
+        </div>
+        <div class="form-group">
+          <label><i class="ti ti-id" aria-hidden="true"></i> Customer ID</label>
+          <input type="text" id="customCid" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" spellcheck="false" autocomplete="off" oninput="onCustomInput()" />
+        </div>
+      </div>
+      <div class="form-group" style="margin-top:8px;">
+        <label><i class="ti ti-building-bank" aria-hidden="true"></i> Virtual Account ID</label>
+        <input type="text" id="customVaId" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" spellcheck="false" autocomplete="off" oninput="onCustomInput()" />
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div class="form-row">
+      <div class="form-group">
+        <label><i class="ti ti-currency-dollar" aria-hidden="true"></i> USDC amount <span style="font-size:10px;color:var(--text3)">(optional override)</span></label>
+        <input type="number" id="amountInput" placeholder="15  (default)" min="0.01" step="0.01" />
+      </div>
+      <div class="form-group">
+        <label><i class="ti ti-hash" aria-hidden="true"></i> TX hash override <span style="font-size:10px;color:var(--text3)">(optional)</span></label>
+        <input type="text" id="txHashInput" placeholder="MAuGiwirRJaK7Ngi… or 0xca1ddd8…" spellcheck="false" autocomplete="off" />
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div class="run-row">
+      <span class="run-hint" id="runHint">Select a deposit type above</span>
+      <button class="run-btn" id="runBtn" disabled onclick="runDeposit()">
+        <i class="ti ti-player-play" style="font-size:14px" aria-hidden="true"></i> Fire callbacks
+      </button>
+    </div>
+  </div>
+
+  <div class="section-label">Output</div>
+  <div class="console-wrap" role="log" aria-live="polite">
+    <div class="console-top">
+      <div class="console-top-l"><i class="ti ti-terminal" style="font-size:14px" aria-hidden="true"></i><span>Console</span></div>
+      <button class="console-clear" onclick="clearLog()">Clear</button>
+    </div>
+    <div class="console-body" id="consoleBody">
+      <span class="lp">Select a deposit type and account, then click "Fire callbacks".</span>
+    </div>
+    <div class="status-bar">
+      <span class="dot" id="sDot" aria-hidden="true"></span>
+      <span id="sText">Idle</span>
+    </div>
+  </div>
+
+  <div class="note">
+    <i class="ti ti-info-circle" aria-hidden="true"></i>
+    <span>
+      This UI fires real HTTP POST callbacks to <code>https://appapi.tryspeed.dev/bridge-callback</code>.
+      Amounts default to <code>15 USDC</code>; fiat equivalents are fetched live from <code>api.frankfurter.app</code> for FX scripts.
+      The TX hash fields default to the values in the original scripts — override them here to test different transactions.
+    </span>
+  </div>
+</div><!-- /panel-bridge -->
+
+<!-- ══ GreenDot Panel ══ -->
+<div class="panel" id="panel-greendot">
+  <div class="page-head">
+    <div>
+      <h1>GreenDot Deposit</h1>
+      <p>Cash deposit via GreenDot retail network</p>
+    </div>
+  </div>
+
+  <div class="proxy-status" id="proxyStatus">
+    <span class="dot" id="proxyDot" style="width:8px;height:8px;"></span>
+    <span id="proxyMsg">Checking proxy…</span>
+    <div style="margin-left:auto;display:flex;gap:6px;align-items:center;">
+      <button onclick="checkProxy()" class="proxy-btn"><i class="ti ti-refresh" style="font-size:12px"></i> Recheck</button>
+      <button onclick="showStartInstructions()" class="proxy-btn proxy-btn-start" id="startProxyBtn" style="display:none;">
+        <i class="ti ti-player-play" style="font-size:12px"></i> How to start proxy
+      </button>
+    </div>
+  </div>
+
+  <div id="proxyModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:999;align-items:center;justify-content:center;">
+    <div style="background:var(--surface);border:0.5px solid var(--border2);border-radius:var(--radius);padding:1.5rem;max-width:460px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,0.18);">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+        <div style="font-size:14px;font-weight:500;color:var(--text);display:flex;align-items:center;gap:8px;">
+          <i class="ti ti-terminal-2" style="color:var(--green-b)"></i> Start GreenDot Proxy
+        </div>
+        <button onclick="closeModal()" style="background:none;border:none;cursor:pointer;color:var(--text2);font-size:18px;line-height:1;">×</button>
+      </div>
+      <div style="font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:1rem;">The Vercel proxy is not reachable. Check the following:</div>
+      <div class="modal-step"><span class="modal-step-num">1</span><div>Make sure <code class="modal-code" style="display:inline;">api/Internal-tools.js</code> is deployed to Vercel alongside this HTML.</div></div>
+      <div class="modal-step"><span class="modal-step-num">2</span><div>Go to your <strong>Vercel dashboard</strong> → Functions tab → confirm <code class="modal-code" style="display:inline;">/api/Internal-tools</code> is listed and not erroring.</div></div>
+      <div class="modal-step"><span class="modal-step-num">3</span><div>Re-deploy if needed, then click <strong>Recheck</strong> below.</div></div>
+      <div style="margin-top:1.25rem;display:flex;gap:8px;justify-content:flex-end;">
+        <button onclick="closeModal()" class="proxy-btn">Cancel</button>
+        <button onclick="closeModal();checkProxy();" class="proxy-btn" style="background:var(--green-b);color:#fff;border-color:var(--green-b);">
+          <i class="ti ti-refresh" style="font-size:12px"></i> Recheck now
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="gd-grid" id="gdGrid"></div>
+
+  <div class="section-label" style="margin-top:1.25rem;">Configure GreenDot run</div>
+  <div class="config-panel" id="gdPanel">
+    <div class="acc-default-row" style="margin-bottom:12px;">
+      <div class="acc-badge" style="background:var(--green-bg);border-color:var(--green-b);color:var(--green-t);">
+        <i class="ti ti-leaf" aria-hidden="true"></i>
+      </div>
+      <div class="acc-info">
+        <div class="acc-email">naiya++000228@tryspeed.com</div>
+        <div class="acc-ids">acct_mp52s8obgWpe9CPn</div>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label><i class="ti ti-currency-dollar" aria-hidden="true"></i> Amount (USD) <span style="font-size:10px;color:var(--text3)">required</span></label>
+        <input type="number" id="gdAmount" placeholder="e.g. 20" min="1" step="0.01" oninput="gdUpdateHint()" />
+      </div>
+      <div class="form-group">
+        <label><i class="ti ti-barcode" aria-hidden="true"></i> Barcode <span style="font-size:10px;color:var(--text3)">required for step 2 &amp; 3 only</span></label>
+        <input type="text" id="gdBarcode" placeholder="Leave blank to run all 3 steps" spellcheck="false" autocomplete="off" oninput="gdUpdateHint()" />
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div class="run-row">
+      <span class="run-hint" id="gdRunHint">Select a GreenDot script above</span>
+      <button class="run-btn" id="gdRunBtn" disabled onclick="runGreenDot()" style="background:var(--green-b);">
+        <i class="ti ti-player-play" style="font-size:14px" aria-hidden="true"></i> Run
+      </button>
+    </div>
+  </div>
+
+  <div class="section-label">GreenDot output</div>
+  <div class="console-wrap" role="log" aria-live="polite">
+    <div class="console-top">
+      <div class="console-top-l"><i class="ti ti-terminal" style="font-size:14px" aria-hidden="true"></i><span>GreenDot console</span></div>
+      <button class="console-clear" onclick="gdClearLog()">Clear</button>
+    </div>
+    <div class="console-body" id="gdConsoleBody"><span class="lp">Select a GreenDot script and click Run.</span></div>
+    <div class="status-bar">
+      <span class="dot" id="gdDot" aria-hidden="true"></span>
+      <span id="gdText">Idle</span>
+    </div>
+  </div>
+</div><!-- /panel-greendot -->
+
+<!-- ══ Fee Calculator Panel ══ -->
+<div class="panel" id="panel-fee">
+  <div class="page-head">
+    <div>
+      <h1>Deposit Fee Calculator</h1>
+      <p>Compute net credited amount after provider + Speed fees</p>
+    </div>
+  </div>
+
+  <div class="mode-toggle">
+    <button class="mode-btn active" id="modeExclusive" onclick="setFeeMode('exclusive')">Exclusive</button>
+    <button class="mode-btn" id="modeInclusive" onclick="setFeeMode('inclusive')">Inclusive</button>
+  </div>
+
+  <div class="section-label">Deposit inputs</div>
+  <div class="fee-card">
+    <div class="fee-input-grid">
+      <div class="fee-field"><label>Deposit amount</label><input type="number" id="fee-amount" value="1000" min="0" step="1" oninput="feeCalc()" /></div>
+      <div class="fee-field"><label>Exchange rate</label><input type="number" id="fee-fx" value="83.5" min="0" step="0.0001" oninput="feeCalc()" /></div>
+    </div>
+    <div class="fee-sub-divider"></div>
+    <div class="fee-sub-head">Provider processing fee</div>
+    <div class="fee-input-grid">
+      <div class="fee-field"><label>Processing fee %</label><input type="number" id="fee-pf-pct" value="1.5" min="0" max="100" step="0.01" oninput="feeCalc()" /></div>
+      <div class="fee-field"><label>Processing fixed fee</label><input type="number" id="fee-pf-fixed" value="25" min="0" step="0.01" oninput="feeCalc()" /></div>
+    </div>
+    <div class="fee-sub-divider"></div>
+    <div class="fee-sub-head">Speed fee</div>
+    <div class="fee-input-grid">
+      <div class="fee-field"><label>Speed fee %</label><input type="number" id="fee-sf-pct" value="0.5" min="0" max="100" step="0.01" oninput="feeCalc()" /></div>
+      <div class="fee-field"><label>Speed fixed fee</label><input type="number" id="fee-sf-fixed" value="10" min="0" step="0.01" oninput="feeCalc()" /></div>
+    </div>
+  </div>
+
+  <div class="section-label">Results</div>
+  <div class="fee-metrics-row" id="fee-metrics"></div>
+  <div class="fee-fees-card" id="fee-fees-card"></div>
+  <div id="fee-net-card"></div>
+
+  <div class="section-label">Transaction breakdown</div>
+  <div class="fee-breakdown-card" id="fee-breakdown"></div>
+
+  <div class="fee-footer">tryspeed.com &nbsp;·&nbsp; deposit fee calculator &nbsp;·&nbsp; internal use only</div>
+</div><!-- /panel-fee -->
+
+</main><!-- /main -->
+
+<script>
+/* ═══════════════════════════════════════════════════════
+   PANEL SWITCHER
+═══════════════════════════════════════════════════════ */
+function switchPanel(name) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  document.querySelector('.nav-item[data-panel="' + name + '"]').classList.add('active');
+  if (name === 'greendot') checkProxy();
+}
+
+/* ═══════════════════════════════════════════════════════
+   BRIDGE DEPOSIT
+═══════════════════════════════════════════════════════ */
+const ACCOUNTS = [
+  { email: "naiya++000117@tryspeed.com", account_id: "acct_mob72ey1Oa1pzCjL", customer_id: "c7f2b23b-3963-43f0-bfb8-b5cfa7780b71", virtual_account_id: "e696f1a1-3d2a-4623-8012-8620e1785664" },
+  { email: "naiya++000221@tryspeed.com", account_id: "acct_mp3m79mr6NIUKNTX", customer_id: "b87ce3c4-4838-41d4-bde2-914cb86647ac", virtual_account_id: "509a059a-d922-4cd8-ac3f-bf4dab58b833" },
+  { email: "naiya++000219@tryspeed.com", account_id: "acct_mp3m1bqsIpIJVZ6D", customer_id: "24b054fe-f732-4852-8c75-706b67b91733", virtual_account_id: "b89cf824-259b-4ebf-b609-c4338df7624e" },
+  { email: "naiya++000233@tryspeed.com", account_id: "acct_mp536ljpRwz19rXa",  customer_id: "cb9e4d0f-f025-4f3a-a27c-9e535b25b1e3", virtual_account_id: "3a4529a8-d852-4b0d-be3a-eb49f1a7bc00" },
+  { email: "naiya++000291@tryspeed.com", account_id: "acct_mpv3b35szCgV3D5v", customer_id: "10e93038-42cf-4e47-a899-13bea7800c94", virtual_account_id: "ad691511-68e8-4591-b90e-01e83a944515" },
+];
+
+const SCRIPTS = [
+  { id: "USD_ACH",  label: "Bridge – USD",          flag: "🇺🇸", rail: "ACH Push",        currency: "usd", paymentRail: "ach_push",        steps: 3, defaultAcc: 0, color: { bg:"var(--blue-bg)",  b:"var(--blue-b)"  } },
+  { id: "USD_WIRE", label: "Bridge – USD",          flag: "🇺🇸", rail: "Wire",            currency: "usd", paymentRail: "wire",             steps: 3, defaultAcc: 0, color: { bg:"var(--blue-bg)",  b:"var(--blue-b)"  } },
+  { id: "USD_FED",  label: "Bridge – USD",          flag: "🇺🇸", rail: "FedNow",          currency: "usd", paymentRail: "fednow",           steps: 3, defaultAcc: 0, color: { bg:"var(--blue-bg)",  b:"var(--blue-b)"  } },
+  { id: "EUR",      label: "Bridge – EUR (Spain)",  flag: "🇪🇸", rail: "SEPA",            currency: "eur", paymentRail: "sepa",             steps: 3, defaultAcc: 4, color: { bg:"var(--teal-bg)",  b:"var(--teal-b)"  } },
+  { id: "GBP",      label: "Bridge – GBP",          flag: "🇬🇧", rail: "Faster Payments", currency: "gbp", paymentRail: "faster_payments",  steps: 3, defaultAcc: 1, color: { bg:"var(--green-bg)", b:"var(--green-b)" } },
+  { id: "BRL",      label: "Bridge – BRL",          flag: "🇧🇷", rail: "PIX",             currency: "brl", paymentRail: "pix",              steps: 3, defaultAcc: 3, color: { bg:"var(--amber-bg)", b:"var(--amber-b)" } },
+  { id: "MXN",      label: "Bridge – MXN",          flag: "🇲🇽", rail: "SPEI",            currency: "mxn", paymentRail: "spei",             steps: 3, defaultAcc: 2, color: { bg:"var(--pink-bg)",  b:"var(--pink-b)"  } },
+  { id: "MIC",      label: "Bridge – Microdeposit", flag: "🔬",  rail: "ACH Push / Base", currency: "usd", paymentRail: "ach_push",         steps: 1, defaultAcc: 0, color: { bg:"var(--gray-bg)", b:"var(--gray-b)"  } },
+];
+
+const BASE_URL = "https://appapi.tryspeed.dev/bridge-callback";
+const DEFAULT_TX_SOLANA = "MAuGiwirRJaK7NgiKvy7yKXUUZTvfGLJ99eFVRg15Sib8ExNvS3dD2VKYDMthNTk9ST3rgSQYXQshnSF2dxZiEe";
+const DEFAULT_TX_EVM    = "0xca1ddd8ff74a9e8f1653c3d6d2de0cb9ba88d78c4b2074989480a223d0c9a1ea";
+
+let selectedScript = null;
+
+function renderCards() {
+  const grid = document.getElementById("scriptsGrid");
+  grid.innerHTML = "";
+  SCRIPTS.forEach(s => {
+    const el = document.createElement("div");
+    el.className = "script-btn";
+    el.setAttribute("tabindex","0");
+    el.setAttribute("role","button");
+    el.setAttribute("aria-label","Select " + s.label);
+    el.dataset.id = s.id;
+    el.style.setProperty("--active-bg",  s.color.bg);
+    el.style.setProperty("--active-border", s.color.b);
+    const stepPills = s.steps === 1
+      ? '<span class="step-pill">microdeposit</span>'
+      : '<span class="step-pill">funds_received</span><span class="step-pill">payment_submitted</span><span class="step-pill">payment_processed</span>';
+    el.innerHTML = `
+      <div class="sb-top"><span class="sb-flag">${s.flag}</span><div class="sb-check"><i class="ti ti-check"></i></div></div>
+      <div class="sb-name">${s.label}</div>
+      <div class="sb-meta">${s.rail}</div>
+      <div class="sb-steps">${stepPills}</div>
+    `;
+    el.addEventListener("click", () => selectScript(s.id));
+    el.addEventListener("keydown", e => { if (e.key==="Enter"||e.key===" ") selectScript(s.id); });
+    grid.appendChild(el);
+  });
+}
+
+function selectScript(id) {
+  selectedScript = (selectedScript === id) ? null : id;
+  document.querySelectorAll(".script-btn").forEach(el => {
+    el.classList.toggle("active", el.dataset.id === selectedScript);
+    el.setAttribute("aria-pressed", el.dataset.id === selectedScript);
+  });
+  if (!useCustomAcc) refreshDefaultAccDisplay();
+  updateRunHint();
+}
+
+let useCustomAcc = false;
+
+function getScriptDefaultAcc() {
+  if (!selectedScript) return ACCOUNTS[0];
+  const s = SCRIPTS.find(x => x.id === selectedScript);
+  return ACCOUNTS[s.defaultAcc];
+}
+
+function refreshDefaultAccDisplay() {
+  const emailEl = document.getElementById("defEmail");
+  const idsEl   = document.getElementById("defIds");
+  if (!selectedScript) {
+    emailEl.textContent = "Select a deposit type to see the default account";
+    emailEl.style.cssText = "color:var(--text3);font-style:italic;";
+    idsEl.textContent = "";
+    return;
+  }
+  const a = getScriptDefaultAcc();
+  emailEl.textContent = a.email;
+  emailEl.style.cssText = "";
+  idsEl.textContent = (a.account_id || "(no acct_id)") + "  ·  " + a.customer_id;
+}
+
+function toggleCustom() {
+  useCustomAcc = !useCustomAcc;
+  document.getElementById("customAccBlock").style.display  = useCustomAcc ? "block" : "none";
+  document.getElementById("defaultAccBlock").style.display = useCustomAcc ? "none"  : "block";
+  document.getElementById("toggleCustomBtn").setAttribute("aria-expanded", useCustomAcc);
+  updateRunHint();
+}
+
+function onCustomInput() { updateRunHint(); }
+
+function getActiveAccount() {
+  if (!useCustomAcc) return getScriptDefaultAcc();
+  const email = document.getElementById("customEmail").value.trim();
+  const cid   = document.getElementById("customCid").value.trim();
+  const vaId  = document.getElementById("customVaId").value.trim();
+  if (!cid || !vaId) return null;
+  return { email: email || "(custom)", account_id: "", customer_id: cid, virtual_account_id: vaId };
+}
+
+function updateRunHint() {
+  const btn  = document.getElementById("runBtn");
+  const hint = document.getElementById("runHint");
+  const acc  = getActiveAccount();
+  if (selectedScript && acc) {
+    const s = SCRIPTS.find(x => x.id === selectedScript);
+    hint.textContent = s.label + "  ·  " + acc.email;
+    btn.disabled = false;
+  } else if (selectedScript && !acc) {
+    hint.textContent = "Enter Customer ID and Virtual Account ID to continue";
+    btn.disabled = true;
+  } else {
+    hint.textContent = "Select a deposit type above";
+    btn.disabled = true;
+  }
+}
+
+let logCounter = 0;
+function ts() { return new Date().toTimeString().slice(0,8); }
+function log(html, cls) {
+  const body = document.getElementById("consoleBody");
+  if (logCounter === 0) body.innerHTML = "";
+  logCounter++;
+  const line = document.createElement("span");
+  line.className = "log";
+  line.innerHTML = `<span class="ts">[${ts()}]</span><span class="${cls||""}">${html}</span>`;
+  body.appendChild(line);
+  body.scrollTop = body.scrollHeight;
+}
+function clearLog() {
+  logCounter = 0;
+  document.getElementById("consoleBody").innerHTML = '<span class="lp">Select a deposit type and account, then click "Fire callbacks".</span>';
+  setStatus("", "Idle");
+}
+function setStatus(cls, txt) {
+  document.getElementById("sDot").className = "dot " + cls;
+  document.getElementById("sText").textContent = txt;
+}
+
+async function fetchFxRate(toCurrency) {
+  const res = await fetch(`https://api.frankfurter.app/latest?from=USD&to=${toCurrency.toUpperCase()}`);
+  const data = await res.json();
+  return data.rates[toCurrency.toUpperCase()];
+}
+
+function makeEventBase(seq) {
+  return {
+    api_version: "v0", event_id: "wh_thKxmYFTcAH7Q16t7UK5tcw",
+    event_developer_id: "5c8db1df-6a58-4716-9628-010b03c06fe2",
+    event_sequence: seq, event_category: "virtual_account.activity",
+    event_type: "virtual_account.activity.created",
+    event_object_id: "fecffc8b-ed5e-48ae-bd24-b36268330b32", event_object_status: null,
+  };
+}
+
+function makeReceipt(fiatAmt, exchangeRate, usdcAmt, txHash) {
+  return {
+    url: "https://dashboard.bridge.xyz/transaction/0e22c9c5-2dac-4847-b4c3-e74de062a41b/receipt/3bb4cf22-7adf-4ffe-a74a-40e40077565e",
+    gas_fee: "0.0", exchange_fee: "0.0", final_amount: String(usdcAmt),
+    developer_fee: "0.0", exchange_rate: String(exchangeRate),
+    initial_amount: String(fiatAmt), subtotal_amount: String(fiatAmt), destination_tx_hash: txHash,
+  };
+}
+
+async function fireCallback(label, payload) {
+  log(`Sending: <strong>${label}</strong>`, "li");
+  const body = JSON.stringify(payload, null, 2);
+  try {
+    const res = await fetch(BASE_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body });
+    const text = await res.text();
+    let pretty;
+    try { pretty = JSON.stringify(JSON.parse(text), null, 2); } catch { pretty = text; }
+    if (res.ok) { log(`✓ ${res.status} — ${pretty.slice(0,200)}${pretty.length>200?"…":""}`, "ls"); }
+    else { log(`✗ ${res.status} — ${pretty.slice(0,300)}`, "le"); }
+  } catch(e) { log(`Network error: ${e.message}`, "le"); }
+}
+
+async function runDeposit() {
+  const acc = getActiveAccount();
+  if (!selectedScript || !acc) return;
+  const s = SCRIPTS.find(x => x.id === selectedScript);
+  const amountOverride = parseFloat(document.getElementById("amountInput").value) || 15;
+  const txOverride     = document.getElementById("txHashInput").value.trim();
+  const txSolana       = txOverride || DEFAULT_TX_SOLANA;
+  const txEvm          = txOverride || DEFAULT_TX_EVM;
+  const depositId = crypto.randomUUID();
+  document.getElementById("runBtn").disabled = true;
+  setStatus("run", `Running ${s.label}…`);
+  log(`━━━ ${s.label}  ·  ${acc.email}  ·  ${depositId} ━━━`, "li");
+  const cid = acc.customer_id, vaId = acc.virtual_account_id, usdc = amountOverride;
+
+  if (s.id === "MIC") {
+    const body = {
+      ...makeEventBase(640),
+      event_object: {
+        id: "589d50e5-fc71-4404-aee1-5effb7b26189", customer_id: cid, virtual_account_id: vaId,
+        type: "microdeposit", amount: "0.5", currency: "usd",
+        developer_fee_amount: "0", exchange_fee_amount: "0", subtotal_amount: "0.5", gas_fee: "0.0",
+        created_at: new Date().toISOString(), deposit_id: depositId, destination_tx_hash: null,
+        source: { payment_rail:"ach_push", reference:"Order reF123456", iban:"DE89370400440532013000", iban_last_4:"3000", bic:"COBADEFFXXX", sender_name:"usa bank", recipient_name:"Bridge US", uetr:"a7ed4827-7b6f-4491-a06f-b548d5a7513e", payment_scheme:"sepa_credit", sender_bank_routing_number:"deposit1" },
+        destination_payment_rail: "base",
+      }
+    };
+    await fireCallback("Microdeposit", body);
+    log("✓ Microdeposit completed.", "ls");
+    setStatus("ok", "Microdeposit done");
+    document.getElementById("runBtn").disabled = false;
+    return;
+  }
+
+  let fiatAmt, exchangeRate, source;
+  const isFx = s.currency !== "usd";
+  if (isFx) {
+    log(`Fetching live USD → ${s.currency.toUpperCase()} rate…`, "lc");
+    try {
+      const rate = await fetchFxRate(s.currency);
+      fiatAmt = Math.round(usdc * rate * 100) / 100;
+      exchangeRate = Math.round((usdc / fiatAmt) * 1000000) / 1000000;
+      log(`Rate: 1 USD = ${rate} ${s.currency.toUpperCase()}  →  ${fiatAmt} ${s.currency.toUpperCase()} for ${usdc} USDC`, "lc");
+    } catch(e) {
+      log(`FX fetch failed (${e.message}), using fallback`, "lw");
+      const fallbacks = { eur:[12.88,1.164], gbp:[11.85,1.2658], brl:[77.55,0.1934], mxn:[261.74,0.0573] };
+      [fiatAmt, exchangeRate] = fallbacks[s.currency] || [usdc, 1];
+    }
+  } else { fiatAmt = usdc; exchangeRate = "1.0"; }
+
+  const sources = {
+    ach_push:        { payment_rail:"ach_push",        reference:"Order reF123456", iban:"DE89370400440532013000", iban_last_4:"3000", bic:"COBADEFFXXX", sender_name:"usa bank",    recipient_name:"Bridge US", uetr:"a7ed4827-7b6f-4491-a06f-b548d5a7513e", payment_scheme:"ach_push",        sender_bank_routing_number:"deposit1" },
+    wire:            { payment_rail:"wire",            reference:"Order reF123456", iban:"DE89370400440532013000", iban_last_4:"3000", bic:"COBADEFFXXX", sender_name:"usa bank",    recipient_name:"Bridge US", uetr:"a7ed4827-7b6f-4491-a06f-b548d5a7513e", payment_scheme:"wire",            sender_bank_routing_number:"deposit1" },
+    fednow:          { payment_rail:"fednow",          reference:"Order reF123456", iban:"DE89370400440532013000", iban_last_4:"3000", bic:"COBADEFFXXX", sender_name:"usa bank",    recipient_name:"Bridge US", uetr:"a7ed4827-7b6f-4491-a06f-b548d5a7513e", payment_scheme:"fednow",          sender_bank_routing_number:"deposit1" },
+    sepa:            { payment_rail:"sepa",            reference:"Order reF123456", iban:"DE89370400440532013000", iban_last_4:"3000", bic:"COBADEFFXXX", sender_name:"EU Bank",     recipient_name:"Bridge EU", uetr:"a7ed4827-7b6f-4491-a06f-b548d5a7513e", payment_scheme:"sepa_credit",     sender_bank_routing_number:"deposit1" },
+    faster_payments: { payment_rail:"faster_payments", reference:"Order reF123456", sender_name:"UK Bank",     recipient_name:"Bridge UK", payment_scheme:"faster_payments", sender_bank_routing_number:"deposit1" },
+    pix:             { payment_rail:"pix",             reference:"Order reF123456", sender_name:"Brazil Bank", recipient_name:"Bridge BR", payment_scheme:"pix",             sender_bank_routing_number:"deposit1" },
+    spei:            { payment_rail:"spei",            reference:"Order reF123456", sender_name:"Mexico Bank", recipient_name:"Bridge MX", payment_scheme:"spei",            sender_bank_routing_number:"deposit1" },
+  };
+  source = sources[s.paymentRail];
+  const receipt = makeReceipt(fiatAmt, exchangeRate, usdc, txEvm);
+  const destRail = "solana";
+  const objBase  = { id:"589d50e5-fc71-4404-aee1-5effb7b26189", customer_id:cid, virtual_account_id:vaId, developer_fee_amount:"0", exchange_fee_amount:"0", gas_fee:"0.0", deposit_id:depositId, destination_payment_rail:destRail };
+
+  const step1 = { ...makeEventBase(640), event_object: { ...objBase, type:"funds_received",    amount:String(fiatAmt), currency:s.currency, subtotal_amount:String(fiatAmt), created_at:new Date().toISOString(), destination_tx_hash:null, source } };
+  await fireCallback("Step 1 — funds_received (" + s.currency.toUpperCase() + ")", step1);
+  const step2 = { ...makeEventBase(641), event_object: { ...objBase, type:"payment_submitted", amount:String(usdc),    currency:"usdc",      subtotal_amount:String(usdc),    created_at:new Date().toISOString(), destination_tx_hash:null, source, receipt } };
+  await fireCallback("Step 2 — payment_submitted (USDC)", step2);
+  const step3 = { ...makeEventBase(642), event_object: { ...objBase, type:"payment_processed", amount:String(usdc),    currency:"usdc",      subtotal_amount:String(usdc),    created_at:new Date().toISOString(), destination_tx_hash:txSolana, source, receipt } };
+  await fireCallback("Step 3 — payment_processed (USDC)", step3);
+
+  log("━━━ All 3 steps completed ━━━", "ls");
+  setStatus("ok", `${s.label} — done`);
+  document.getElementById("runBtn").disabled = false;
+}
+
+renderCards();
+refreshDefaultAccDisplay();
+updateRunHint();
+
+/* ═══════════════════════════════════════════════════════
+   GREENDOT
+═══════════════════════════════════════════════════════ */
+const GD_ACCOUNT  = { email: "naiya++000228@tryspeed.com", account_id: "acct_mp52s8obgWpe9CPn", password: "Speed@001122" };
+const GD_WALLET   = "https://walletapi.tryspeed.dev";
+const GD_SOAP     = "/api/Internal-tools";
+
+const GD_SCRIPTS = [
+  { id: "GD_ALL", name: "Full flow",   icon: "🟢", meta: "Step 1 → 2 → 3",  desc: "Login → Create deposit → GreenDot Auth → AuthCommit", needsBarcode: false },
+  { id: "GD_S23", name: "Step 2 + 3",  icon: "🔁", meta: "Auth + AuthCommit", desc: "Run GreenDot Auth & AuthCommit with an existing barcode", needsBarcode: true  },
+  { id: "GD_S1",  name: "Step 1 only", icon: "🔑", meta: "Create deposit",   desc: "Login + create deposit, returns barcode", needsBarcode: false },
+];
+
+let gdSelected = null;
+
+function renderGdCards() {
+  const grid = document.getElementById("gdGrid");
+  grid.innerHTML = "";
+  GD_SCRIPTS.forEach(s => {
+    const el = document.createElement("div");
+    el.className = "gd-card";
+    el.setAttribute("tabindex", "0");
+    el.setAttribute("role", "button");
+    el.dataset.id = s.id;
+    el.innerHTML = `
+      <div class="sb-check"><i class="ti ti-check"></i></div>
+      <div class="gd-icon">${s.icon}</div>
+      <div class="gd-name">${s.name}</div>
+      <div class="gd-meta">${s.meta}</div>
+      <div style="font-size:11px;color:var(--text2);line-height:1.5;">${s.desc}</div>
+    `;
+    el.addEventListener("click", () => gdSelect(s.id));
+    el.addEventListener("keydown", e => { if (e.key==="Enter"||e.key===" ") gdSelect(s.id); });
+    grid.appendChild(el);
+  });
+}
+
+function gdSelect(id) {
+  gdSelected = (gdSelected === id) ? null : id;
+  document.querySelectorAll(".gd-card").forEach(el => el.classList.toggle("active", el.dataset.id === gdSelected));
+  gdUpdateHint();
+}
+
+function gdUpdateHint() {
+  const btn = document.getElementById("gdRunBtn"), hint = document.getElementById("gdRunHint");
+  const amount = document.getElementById("gdAmount").value.trim();
+  const barcode = document.getElementById("gdBarcode").value.trim();
+  if (!gdSelected) { hint.textContent = "Select a GreenDot script above"; btn.disabled = true; return; }
+  const s = GD_SCRIPTS.find(x => x.id === gdSelected);
+  if (!amount) { hint.textContent = "Enter an amount to continue"; btn.disabled = true; return; }
+  if (s.needsBarcode && !barcode) { hint.textContent = "Enter a barcode for Step 2 + 3"; btn.disabled = true; return; }
+  const barcodeNote = barcode ? `  ·  barcode: ${barcode.slice(0,12)}…` : "  ·  barcode fetched in step 1";
+  hint.textContent = `${s.name}  ·  $${amount} USD${barcodeNote}`;
+  btn.disabled = false;
+}
+
+let gdLogCounter = 0;
+function gdLog(html, cls) {
+  const body = document.getElementById("gdConsoleBody");
+  if (gdLogCounter === 0) body.innerHTML = "";
+  gdLogCounter++;
+  const line = document.createElement("span");
+  line.className = "log";
+  line.innerHTML = `<span class="ts">[${ts()}]</span><span class="${cls||""}">${html}</span>`;
+  body.appendChild(line);
+  body.scrollTop = body.scrollHeight;
+}
+function gdClearLog() {
+  gdLogCounter = 0;
+  document.getElementById("gdConsoleBody").innerHTML = '<span class="lp">Select a GreenDot script and click Run.</span>';
+  gdSetStatus("", "Idle");
+}
+function gdSetStatus(cls, txt) {
+  document.getElementById("gdDot").className = "dot " + cls;
+  document.getElementById("gdText").textContent = txt;
+}
+
+function buildAuthSoap(barcode, amount) {
+  const dt = new Date().toISOString().slice(0,19), rid = crypto.randomUUID();
+  return `<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"><s:Body><Auth xmlns="http://greendotcorp.com/WebServices/Corporate/GDNPartnerAPI/"><request xmlns:a="https://partners.greendotcorp.com/GDCPartners/GDCWS_GDNPartnerAPI/" xmlns:i="http://www.w3.org/2001/XMLSchema-instance"><a:Audit i:nil="true"></a:Audit><a:Authentication><a:PartnerCode>GreenDot</a:PartnerCode><a:Password>Speed@123</a:Password><a:UserName>Speed</a:UserName></a:Authentication><a:Channel>5</a:Channel><a:RequestDateTime>${dt}</a:RequestDateTime><a:RequestID>${rid}</a:RequestID><a:Version>2.0.0</a:Version><a:Amount>${amount}</a:Amount><a:AuthLifeSpan>201</a:AuthLifeSpan><a:Customer i:nil="true"></a:Customer><a:Description>Test Auth</a:Description><a:DictionaryEntry xmlns:b="http://schemas.microsoft.com/2003/10/Serialization/Arrays"><b:KeyValueOfstringstring><b:Key>Partner</b:Key><b:Value>***</b:Value></b:KeyValueOfstringstring><b:KeyValueOfstringstring><b:Key>StoreNumber</b:Key><b:Value>***</b:Value></b:KeyValueOfstringstring><b:KeyValueOfstringstring><b:Key>StoreState</b:Key><b:Value>*****</b:Value></b:KeyValueOfstringstring><b:KeyValueOfstringstring><b:Key>StoreName</b:Key><b:Value>****</b:Value></b:KeyValueOfstringstring><b:KeyValueOfstringstring><b:Key>StoreCity</b:Key><b:Value>******</b:Value></b:KeyValueOfstringstring><b:KeyValueOfstringstring><b:Key>StoreAddress1</b:Key><b:Value>******Chichester Ave</b:Value></b:KeyValueOfstringstring><b:KeyValueOfstringstring><b:Key>StoreAddress2</b:Key><b:Value>******</b:Value></b:KeyValueOfstringstring><b:KeyValueOfstringstring><b:Key>StoreZipcode</b:Key><b:Value>******</b:Value></b:KeyValueOfstringstring><b:KeyValueOfstringstring><b:Key>RetailerName</b:Key><b:Value>******</b:Value></b:KeyValueOfstringstring></a:DictionaryEntry><a:PartialApproval>false</a:PartialApproval><a:PaymentType>2</a:PaymentType><a:ProgramNumber>451062</a:ProgramNumber><a:SourceAccount><a:AccountNumber>${barcode}</a:AccountNumber><a:AccountReferenceNumber>123</a:AccountReferenceNumber><a:AccountType>2</a:AccountType><a:SubAccountNumber i:nil="true"></a:SubAccountNumber><a:SubAccountReferenceNumber></a:SubAccountReferenceNumber></a:SourceAccount><a:TargetAccount><a:AccountNumber></a:AccountNumber><a:AccountReferenceNumber></a:AccountReferenceNumber><a:AccountType>1</a:AccountType><a:SubAccountNumber> </a:SubAccountNumber><a:SubAccountReferenceNumber i:nil="true"></a:SubAccountReferenceNumber></a:TargetAccount><a:TransactionReferenceNumber i:nil="true"></a:TransactionReferenceNumber></request></Auth></s:Body></s:Envelope>`;
+}
+
+function buildAuthCommitSoap(confirmationId, amount, accountId) {
+  const dt = new Date().toISOString().slice(0,19), rid = crypto.randomUUID();
+  return `<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"><s:Body><AuthCommit xmlns="http://greendotcorp.com/WebServices/Corporate/GDNPartnerAPI/"><request xmlns:a="https://partners.greendotcorp.com/GDCPartners/GDCWS_GDNPartnerAPI/" xmlns:i="http://www.w3.org/2001/XMLSchema-instance"><a:Audit i:nil="true"></a:Audit><a:Authentication><a:PartnerCode>GreenDot</a:PartnerCode><a:Password>Speed@123</a:Password><a:UserName>Speed</a:UserName></a:Authentication><a:Channel>5</a:Channel><a:RequestDateTime>${dt}</a:RequestDateTime><a:RequestID>${rid}</a:RequestID><a:Version>2.0.0</a:Version><a:Amount>${amount}</a:Amount><a:AuthLifeSpan>201</a:AuthLifeSpan><a:Customer i:nil="true"></a:Customer><a:Description>Test AuthCommit</a:Description><a:DictionaryEntry xmlns:b="http://schemas.microsoft.com/2003/10/Serialization/Arrays"><b:KeyValueOfstringstring><b:Key>Partner</b:Key><b:Value>****</b:Value></b:KeyValueOfstringstring><b:KeyValueOfstringstring><b:Key>StoreNumber</b:Key><b:Value>****</b:Value></b:KeyValueOfstringstring><b:KeyValueOfstringstring><b:Key>StoreState</b:Key><b:Value>****</b:Value></b:KeyValueOfstringstring><b:KeyValueOfstringstring><b:Key>StoreName</b:Key><b:Value>****</b:Value></b:KeyValueOfstringstring><b:KeyValueOfstringstring><b:Key>StoreCity</b:Key><b:Value>****</b:Value></b:KeyValueOfstringstring><b:KeyValueOfstringstring><b:Key>StoreAddress1</b:Key><b:Value>****</b:Value></b:KeyValueOfstringstring><b:KeyValueOfstringstring><b:Key>StoreAddress2</b:Key><b:Value>****</b:Value></b:KeyValueOfstringstring><b:KeyValueOfstringstring><b:Key>StoreZipcode</b:Key><b:Value>****</b:Value></b:KeyValueOfstringstring><b:KeyValueOfstringstring><b:Key>RetailerName</b:Key><b:Value>*****</b:Value></b:KeyValueOfstringstring><b:KeyValueOfstringstring><b:Key>StoreTransactionDate</b:Key><b:Value>06/05/2023 22:45:00</b:Value></b:KeyValueOfstringstring><b:KeyValueOfstringstring><b:Key>StoreCounty</b:Key><b:Value i:nil="true" /></b:KeyValueOfstringstring><b:KeyValueOfstringstring><b:Key>StoreLatitude</b:Key><b:Value>*****</b:Value></b:KeyValueOfstringstring><b:KeyValueOfstringstring><b:Key>StoreLongitude</b:Key><b:Value>*****</b:Value></b:KeyValueOfstringstring></a:DictionaryEntry><a:OriginalConfirmationID>${confirmationId}</a:OriginalConfirmationID><a:PartialApproval>false</a:PartialApproval><a:PaymentType>7</a:PaymentType><a:ProgramNumber>451062</a:ProgramNumber><a:SourceAccount><a:AccountNumber>830324006610008131355291245397</a:AccountNumber><a:AccountReferenceNumber>830324006610008131355281590512</a:AccountReferenceNumber><a:AccountType>7</a:AccountType><a:SubAccountNumber i:nil="true"></a:SubAccountNumber><a:SubAccountReferenceNumber></a:SubAccountReferenceNumber></a:SourceAccount><a:TargetAccount><a:AccountNumber>${accountId}</a:AccountNumber><a:AccountReferenceNumber>${accountId}</a:AccountReferenceNumber><a:AccountType>3</a:AccountType><a:SubAccountNumber i:nil="true"></a:SubAccountNumber><a:SubAccountReferenceNumber i:nil="true"></a:SubAccountReferenceNumber></a:TargetAccount><a:TransactionReferenceNumber i:nil="true"></a:TransactionReferenceNumber></request></AuthCommit></s:Body></s:Envelope>`;
+}
+
+async function callSoap(label, xml) {
+  gdLog(`Sending: <strong>${label}</strong>`, "li");
+  const res = await fetch(GD_SOAP, { method:"POST", headers:{"Content-Type":"application/xml"}, body: xml });
+  const text = await res.text();
+  if (!res.ok) { gdLog(`✗ ${res.status} — ${text.slice(0,300)}`, "le"); throw new Error("SOAP " + res.status); }
+  gdLog(`✓ ${res.status} received`, "ls");
+  const rt = text.match(/<[^:>]*:?ResponseText[^>]*>([^<]+)<\/[^>]+ResponseText>/);
+  const ci = text.match(/<[^:>]*:?ConfirmationID[^>]*>([^<]+)<\/[^>]+ConfirmationID>/);
+  const responseText = rt ? rt[1] : null, confirmId = ci ? ci[1] : null;
+  if (responseText) gdLog(`ResponseText: <strong>${responseText}</strong>`, responseText === "Success" ? "ls" : "le");
+  if (confirmId)    gdLog(`ConfirmationID: ${confirmId}`, "lw");
+  return { responseText, confirmId, raw: text };
+}
+
+async function runGreenDot() {
+  if (!gdSelected) return;
+  const s = GD_SCRIPTS.find(x => x.id === gdSelected);
+  const amount = parseFloat(document.getElementById("gdAmount").value);
+  const barcodeInput = document.getElementById("gdBarcode").value.trim();
+  document.getElementById("gdRunBtn").disabled = true;
+  gdSetStatus("run", `Running ${s.name}…`);
+  gdLog(`━━━ ${s.name}  ·  $${amount} USD ━━━`, "li");
+  let barcode = barcodeInput, idToken, accessToken;
+  try {
+    if (s.id === "GD_ALL" || s.id === "GD_S1") {
+      gdLog("Step 1a — logging in via walletapi…", "lc");
+      const authRes = await fetch(GD_WALLET + "/login", { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({ email:GD_ACCOUNT.email, password:GD_ACCOUNT.password }) });
+      if (!authRes.ok) { const t = await authRes.text(); gdLog(`✗ Login failed ${authRes.status}: ${t.slice(0,200)}`, "le"); throw new Error("Login failed"); }
+      const authData = await authRes.json();
+      idToken = authData.id_token; accessToken = authData.access_token;
+      gdLog("✓ Logged in", "ls");
+      gdLog(`Step 1b — creating deposit ($${amount} USD)…`, "lc");
+      const depRes = await fetch(GD_WALLET + "/deposit", { method:"POST", headers:{"speed-account":GD_ACCOUNT.account_id,"speed-livemode":"true","speed-account-type":"wallet","Authorization":idToken,"Access":accessToken,"Content-Type":"application/json"}, body:JSON.stringify({ currency:"USD", target_currency:"USD", amount, payment_method_id:"pm_23", source:"GREENDOT", statement_descriptor:"test automation", data:{ retailer_key:10831, store_id:"CVS test", retailer_fee_amount:3.4, latitude:"40.74121736", longitude:"-74.00139235", zip_code:"12345" } }) });
+      const depData = await depRes.json();
+      if (!depRes.ok) { gdLog(`✗ Deposit failed ${depRes.status}: ${JSON.stringify(depData).slice(0,300)}`, "le"); throw new Error("Deposit failed"); }
+      gdLog("✓ Deposit created", "ls");
+      barcode = depData.barcode || depData.barcode_number || depData?.data?.barcode_number || depData?.data?.barcode || depData.account_number || null;
+      if (!barcode) { gdLog("⚠ Could not auto-detect barcode field — check raw response", "lw"); gdLog(JSON.stringify(depData).slice(0,400), "lc"); }
+      else { gdLog(`Barcode: <strong>${barcode}</strong>`, "lw"); }
+      if (s.id === "GD_S1") { gdLog("━━━ Step 1 complete ━━━", "ls"); gdSetStatus("ok","Step 1 done"); document.getElementById("gdRunBtn").disabled=false; return; }
+    }
+    if (!barcode) { gdLog("✗ No barcode available for Step 2 — aborting", "le"); throw new Error("No barcode"); }
+    const step2 = await callSoap("Step 2 — GreenDot Auth", buildAuthSoap(barcode, amount));
+    if (!step2.confirmId) { gdLog("✗ No ConfirmationID — cannot proceed to Step 3", "le"); throw new Error("No ConfirmationID"); }
+    await callSoap("Step 3 — GreenDot AuthCommit", buildAuthCommitSoap(step2.confirmId, amount, GD_ACCOUNT.account_id));
+    gdLog("━━━ All steps completed ━━━", "ls");
+    gdSetStatus("ok", `${s.name} — done`);
+  } catch(e) { gdLog(`Aborted: ${e.message}`, "le"); gdSetStatus("err", "Failed"); }
+  document.getElementById("gdRunBtn").disabled = false;
+}
+
+async function checkProxy() {
+  const dot = document.getElementById("proxyDot"), msg = document.getElementById("proxyMsg"), startBtn = document.getElementById("startProxyBtn");
+  dot.className = "dot run"; msg.textContent = "Checking Vercel proxy…";
+  try {
+    const res = await fetch("/api/Internal-tools", { method:"OPTIONS", signal:AbortSignal.timeout(5000) });
+    if (res.ok) { dot.className = "dot ok"; msg.textContent = "Vercel proxy active ✓"; if (startBtn) startBtn.style.display = "none"; }
+    else { throw new Error("Non-OK"); }
+  } catch(e) { dot.className = "dot err"; msg.textContent = "Vercel proxy not reachable — check deployment"; if (startBtn) startBtn.style.display = "inline-flex"; }
+}
+
+function showStartInstructions() { document.getElementById('proxyModal').style.display = 'flex'; }
+function closeModal() { document.getElementById('proxyModal').style.display = 'none'; }
+document.getElementById('proxyModal')?.addEventListener('click', function(e) { if (e.target === this) closeModal(); });
+
+renderGdCards();
+checkProxy();
+
+/* ═══════════════════════════════════════════════════════
+   FEE CALCULATOR
+═══════════════════════════════════════════════════════ */
+let feeMode = 'exclusive';
+
+function setFeeMode(mode) {
+  feeMode = mode;
+  document.getElementById('modeExclusive').classList.toggle('active', mode === 'exclusive');
+  document.getElementById('modeInclusive').classList.toggle('active', mode === 'inclusive');
+  feeCalc();
+}
+
+function fR(n, d=2) { return Math.round(n * Math.pow(10,d)) / Math.pow(10,d); }
+function fC(n, d=2) { return fR(n,d).toLocaleString('en-IN', { minimumFractionDigits:d, maximumFractionDigits:d }); }
+
+function feeCalc() {
+  const amount   = parseFloat(document.getElementById('fee-amount').value)   || 0;
+  const fx       = parseFloat(document.getElementById('fee-fx').value)       || 1;
+  const pf_pct   = parseFloat(document.getElementById('fee-pf-pct').value)   || 0;
+  const pf_fixed = parseFloat(document.getElementById('fee-pf-fixed').value) || 0;
+  const sf_pct   = parseFloat(document.getElementById('fee-sf-pct').value)   || 0;
+  const sf_fixed = parseFloat(document.getElementById('fee-sf-fixed').value) || 0;
+
+  let target_amount, pf_variable, total_pf, target_amount_paid, sf_variable, total_sf, net_amount, total_fees;
+
+  if (feeMode === 'exclusive') {
+    target_amount      = amount * fx;
+    pf_variable        = pf_pct / 100 * target_amount;
+    total_pf           = pf_variable + pf_fixed;
+    target_amount_paid = target_amount - total_pf;
+    sf_variable        = sf_pct / 100 * target_amount_paid;
+    total_sf           = sf_variable + sf_fixed;
+    net_amount         = target_amount_paid - total_sf;
+    total_fees         = total_pf + total_sf;
+  } else {
+    // Inclusive: fees are embedded in the deposit amount
+    target_amount      = amount * fx;
+    const combined_pct = (pf_pct + sf_pct) / 100;
+    const combined_fixed = pf_fixed + sf_fixed;
+    total_fees         = (target_amount * combined_pct + combined_fixed) / (1 + combined_pct);
+    net_amount         = target_amount - total_fees;
+    total_pf           = (target_amount * (pf_pct/100) + pf_fixed) / (1 + combined_pct);
+    total_sf           = total_fees - total_pf;
+    pf_variable        = total_pf - pf_fixed;
+    sf_variable        = total_sf - sf_fixed;
+    target_amount_paid = target_amount - total_pf;
+  }
+
+  document.getElementById('fee-metrics').innerHTML = `
+    <div class="fee-metric">
+      <div class="fm-label">Amount</div>
+      <div class="fm-val">${fC(amount)}</div>
+      <div class="fm-sub">entered deposit</div>
+    </div>
+    <div class="fee-metric">
+      <div class="fm-label">Target amount</div>
+      <div class="fm-val">${fC(target_amount)}</div>
+      <div class="fm-sub">at ${fC(fx,4)} rate</div>
+    </div>
+    <div class="fee-metric">
+      <div class="fm-label">Target amount paid</div>
+      <div class="fm-val">${fC(target_amount_paid)}</div>
+      <div class="fm-sub">after processing fee</div>
+    </div>
+  `;
+
+  document.getElementById('fee-fees-card').innerHTML = `
+    <div class="ff-total-label">Total fees deducted</div>
+    <div class="ff-total-val">- ${fC(total_fees)}</div>
+    <div class="fee-split">
+      <div class="fee-chip">
+        <div class="fc-label">Speed fee</div>
+        <div class="fc-val">- ${fC(total_sf)}</div>
+        <div class="fc-sub">${sf_pct}% of paid amt + fixed ${fC(sf_fixed)}</div>
+      </div>
+    </div>
+    <div class="fee-three-blocks">
+      <div class="tb-chip">
+        <div class="tb-label">Fixed processing fee</div>
+        <div class="tb-val">${fC(pf_fixed)}</div>
+        <div class="tb-sub">fixed amount</div>
+      </div>
+      <div class="tb-chip">
+        <div class="tb-label">Processing fee % amt</div>
+        <div class="tb-val">${fC(pf_variable, 3)}</div>
+        <div class="tb-sub">${pf_pct}% × ${fC(target_amount)}</div>
+      </div>
+      <div class="tb-chip tb-total">
+        <div class="tb-label">Total processing fee</div>
+        <div class="tb-val">- ${fC(total_pf)}</div>
+        <div class="tb-sub">fixed + % amount</div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('fee-net-card').innerHTML = `
+    <div class="fee-net-card">
+      <div>
+        <div class="fn-label">Net amount</div>
+        <div class="fn-sub">credited to user balance</div>
+      </div>
+      <div class="fn-val">${fC(net_amount)}</div>
+    </div>
+  `;
+
+  document.getElementById('fee-breakdown').innerHTML = `
+    <div class="fee-brow">
+      <span class="fb-lbl"><span class="fee-dot b"></span> Amount <span class="fbadge fbadge-info">deposit input</span></span>
+      <span class="fb-val">${fC(amount)}</span>
+    </div>
+    <div class="fee-brow">
+      <span class="fb-lbl"><span class="fee-dot d"></span> Exchange rate</span>
+      <span class="fb-val">× ${fC(fx,4)}</span>
+    </div>
+    <div class="fee-brow fb-total">
+      <span class="fb-lbl"><span class="fee-dot b"></span> Target amount</span>
+      <span class="fb-val">${fC(target_amount)}</span>
+    </div>
+    <hr class="fee-inline-div"/>
+    <div class="fee-brow">
+      <span class="fb-lbl"><span class="fee-dot r"></span> Processing fee % <span class="fbadge fbadge-warn">${pf_pct}% of target</span></span>
+      <span class="fb-val neg">- ${fC(pf_variable)}</span>
+    </div>
+    <div class="fee-brow">
+      <span class="fb-lbl"><span class="fee-dot r"></span> Processing fixed fee</span>
+      <span class="fb-val neg">- ${fC(pf_fixed)}</span>
+    </div>
+    <div class="fee-brow fb-total">
+      <span class="fb-lbl"><span class="fee-dot b"></span> Target amount paid <span class="fbadge fbadge-info">txn amount</span></span>
+      <span class="fb-val">${fC(target_amount_paid)}</span>
+    </div>
+    <hr class="fee-inline-div"/>
+    <div class="fee-brow">
+      <span class="fb-lbl"><span class="fee-dot r"></span> Speed fee % <span class="fbadge fbadge-warn">${sf_pct}% of paid amt</span></span>
+      <span class="fb-val neg">- ${fC(sf_variable)}</span>
+    </div>
+    <div class="fee-brow">
+      <span class="fb-lbl"><span class="fee-dot r"></span> Speed fixed fee</span>
+      <span class="fb-val neg">- ${fC(sf_fixed)}</span>
+    </div>
+    <div class="fee-brow fb-total">
+      <span class="fb-lbl" style="color:var(--success);"><span class="fee-dot g"></span> Net amount <span class="fbadge fbadge-success">credited to balance</span></span>
+      <span class="fb-val pos" style="font-size:15px;">${fC(net_amount)}</span>
+    </div>
+  `;
+}
+
+feeCalc();
+</script>
+</body>
+</html>
