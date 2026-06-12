@@ -729,9 +729,10 @@ function refreshDefaultAccDisplay() {
   const emailEl = document.getElementById("defEmail");
   const idsEl   = document.getElementById("defIds");
   if (!selectedScript) {
-    emailEl.textContent = "Select a deposit type to see the default account";
-    emailEl.style.cssText = "color:var(--text3);font-style:italic;";
-    idsEl.textContent = "";
+    const a = ACCOUNTS[0];
+    emailEl.textContent = a.email;
+    emailEl.style.cssText = "";
+    idsEl.textContent = (a.account_id || "(no acct_id)") + "  ·  " + a.customer_id;
     return;
   }
   const a = getScriptDefaultAcc();
