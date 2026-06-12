@@ -1,6 +1,6 @@
 /**
  * Vercel Serverless Function — GreenDot SOAP Proxy
- * Route: /api/Internal-tools
+ * Route: /api/internal-tools
  *
  * Forwards SOAP requests from the browser to greendotauth.tryspeed.dev,
  * bypassing CORS (browser → Vercel function → GreenDot API).

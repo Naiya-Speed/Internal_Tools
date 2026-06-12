@@ -536,7 +536,7 @@
       </div>
       <div style="font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:1rem;">The Vercel proxy is not reachable. Check the following:</div>
       <div class="modal-step"><span class="modal-step-num">1</span><div>Make sure <code class="modal-code" style="display:inline;">api/Internal-tools.js</code> is deployed to Vercel alongside this HTML.</div></div>
-      <div class="modal-step"><span class="modal-step-num">2</span><div>Go to your <strong>Vercel dashboard</strong> → Functions tab → confirm <code class="modal-code" style="display:inline;">/api/Internal-tools</code> is listed and not erroring.</div></div>
+      <div class="modal-step"><span class="modal-step-num">2</span><div>Go to your <strong>Vercel dashboard</strong> → Functions tab → confirm <code class="modal-code" style="display:inline;">/api/internal-tools</code> is listed and not erroring.</div></div>
       <div class="modal-step"><span class="modal-step-num">3</span><div>Re-deploy if needed, then click <strong>Recheck</strong> below.</div></div>
       <div style="margin-top:1.25rem;display:flex;gap:8px;justify-content:flex-end;">
         <button onclick="closeModal()" class="proxy-btn">Cancel</button>
@@ -920,7 +920,7 @@ updateRunHint();
 ═══════════════════════════════════════════════════════ */
 const GD_ACCOUNT  = { email: "naiya++000228@tryspeed.com", account_id: "acct_mp52s8obgWpe9CPn", password: "Speed@001122" };
 const GD_WALLET   = "https://walletapi.tryspeed.dev";
-const GD_SOAP     = "/api/Internal-tools";
+const GD_SOAP     = "/api/internal-tools";
 
 const GD_SCRIPTS = [
   { id: "GD_ALL", name: "Full flow",   icon: "🟢", meta: "Step 1 → 2 → 3",  desc: "Login → Create deposit → GreenDot Auth → AuthCommit", needsBarcode: false },
@@ -1057,7 +1057,7 @@ async function checkProxy() {
   const dot = document.getElementById("proxyDot"), msg = document.getElementById("proxyMsg"), startBtn = document.getElementById("startProxyBtn");
   dot.className = "dot run"; msg.textContent = "Checking Vercel proxy…";
   try {
-    const res = await fetch("/api/Internal-tools", { method:"OPTIONS", signal:AbortSignal.timeout(5000) });
+    const res = await fetch("/api/internal-tools", { method:"OPTIONS", signal:AbortSignal.timeout(5000) });
     if (res.ok) { dot.className = "dot ok"; msg.textContent = "Vercel proxy active ✓"; if (startBtn) startBtn.style.display = "none"; }
     else { throw new Error("Non-OK"); }
   } catch(e) { dot.className = "dot err"; msg.textContent = "Vercel proxy not reachable — check deployment"; if (startBtn) startBtn.style.display = "inline-flex"; }
