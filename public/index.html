@@ -1201,9 +1201,9 @@ function feeCalc() {
     const combined_fixed = pf_fixed + sf_fixed;
     total_fees         = (target_amount * combined_pct + combined_fixed) / (1 + combined_pct);
     net_amount         = target_amount - total_fees;
-    total_pf           = (target_amount * (pf_pct/100) + pf_fixed) / (1 + combined_pct);
+    pf_variable        = target_amount * (pf_pct / 100);
+    total_pf           = pf_variable + pf_fixed;
     total_sf           = total_fees - total_pf;
-    pf_variable        = total_pf - pf_fixed;
     sf_variable        = total_sf - sf_fixed;
     target_amount_paid = target_amount - total_pf;
   }
