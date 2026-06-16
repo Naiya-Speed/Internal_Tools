@@ -1190,7 +1190,7 @@ function feeCalc() {
     const gross        = target_amount / (1 - pf_pct / 100);
     pf_variable        = gross - target_amount;
     total_pf           = pf_variable + pf_fixed;
-    target_amount_paid = gross + pf_fixed;
+    target_amount_paid = gross - pf_fixed;
     sf_variable        = sf_pct / 100 * target_amount_paid;
     total_sf           = sf_variable + sf_fixed;
     net_amount         = target_amount_paid - total_sf;
