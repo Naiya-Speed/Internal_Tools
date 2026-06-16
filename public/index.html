@@ -1187,8 +1187,9 @@ function feeCalc() {
 
   if (feeMode === 'exclusive') {
     target_amount      = amount * fx;
-    pf_variable        = pf_pct / 100 * target_amount;
-    total_pf           = pf_variable + pf_fixed;
+    const combined_pct_ex = (pf_pct + sf_pct) / 100;
+    total_pf           = (target_amount * (pf_pct / 100) + pf_fixed) / (1 + combined_pct_ex);
+    pf_variable        = total_pf - pf_fixed;
     target_amount_paid = target_amount - total_pf;
     sf_variable        = sf_pct / 100 * target_amount_paid;
     total_sf           = sf_variable + sf_fixed;
