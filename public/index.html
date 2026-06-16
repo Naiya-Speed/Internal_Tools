@@ -1198,14 +1198,12 @@ function feeCalc() {
   } else {
     // Inclusive: fees are embedded in the deposit amount
     target_amount      = amount * fx;
-    const combined_pct = (pf_pct + sf_pct) / 100;
-    const combined_fixed = pf_fixed + sf_fixed;
-    total_fees         = (target_amount * combined_pct + combined_fixed) / (1 + combined_pct);
-    net_amount         = target_amount - total_fees;
     pf_variable        = target_amount * (pf_pct / 100);
     total_pf           = pf_variable + pf_fixed;
-    total_sf           = total_fees - total_pf;
-    sf_variable        = total_sf - sf_fixed;
+    sf_variable        = target_amount * (sf_pct / 100);
+    total_sf           = sf_variable + sf_fixed;
+    total_fees         = total_pf + total_sf;
+    net_amount         = target_amount - total_fees;
     target_amount_paid = target_amount - total_pf;
   }
 
