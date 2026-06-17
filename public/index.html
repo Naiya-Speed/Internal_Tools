@@ -1191,7 +1191,7 @@ function feeCalc() {
     pf_variable        = gross - target_amount;
     total_pf           = pf_variable + pf_fixed;
     const total_charged = target_amount + total_pf;
-    target_amount_paid  = total_charged - target_amount;
+    target_amount_paid  = total_charged - total_pf;
     sf_variable        = sf_pct / 100 * target_amount_paid;
     total_sf           = sf_variable + sf_fixed;
     net_amount         = target_amount_paid - total_sf;
