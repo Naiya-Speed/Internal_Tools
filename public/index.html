@@ -1223,6 +1223,12 @@ function feeCalc() {
       <div class="fm-val">${fC(target_amount_paid)}</div>
       <div class="fm-sub">after processing fee</div>
     </div>
+    ${feeMode === 'exclusive' ? `
+    <div class="fee-metric">
+      <div class="fm-label">Total amount to be charged from User</div>
+      <div class="fm-val">${fC(target_amount + total_pf)}</div>
+      <div class="fm-sub">target amount + total processing fee</div>
+    </div>` : ''}
   `;
 
   document.getElementById('fee-fees-card').innerHTML = `
