@@ -382,12 +382,7 @@
 
     /* Fee footer */
     .fee-footer { margin-top: 2rem; padding-top: 1rem; border-top: 0.5px solid var(--border); font-size: 11px; color: var(--text3); font-family: var(--mono); text-align: center; }
-    .fee-type-btn { font-size:11px; font-family:var(--mono); padding:5px 10px; border-radius:var(--radius-sm); border:0.5px solid var(--border2); background:var(--surface2); color:var(--text2); cursor:pointer; transition:all .12s; }
-    .fee-type-btn:hover { background:var(--blue-bg); color:var(--blue-t); border-color:var(--blue-b); }
-    .fee-type-btn.active { background:var(--blue-bg); color:var(--blue-t); border-color:var(--blue-b); font-weight:500; }
-    .fee-type-btn:disabled { opacity:0.5; cursor:not-allowed; }
-
-    /* ── Login overlay ── */
+/* ── Login overlay ── */
     #loginOverlay {
       position: fixed; inset: 0; z-index: 9999;
       background: var(--bg);
@@ -671,14 +666,6 @@
     </div>
     <div class="fee-sub-divider"></div>
     <div class="fee-sub-head">Provider processing fee</div>
-    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;">
-      <button class="fee-type-btn" onclick="loadFeeType('creditcard',this)">💳 Credit Card</button>
-      <button class="fee-type-btn" onclick="loadFeeType('applepay',this)">🍎 Apple Pay</button>
-      <button class="fee-type-btn" onclick="loadFeeType('debitcard',this)">🏧 Debit Card</button>
-      <button class="fee-type-btn" onclick="loadFeeType('googlepay',this)">🔵 Google Pay</button>
-      <button class="fee-type-btn" onclick="loadFeeType('papermoney',this)">💵 Paper Money</button>
-    </div>
-    <div id="fee-type-status" style="font-size:11px;font-family:var(--mono);color:var(--text3);margin-bottom:8px;min-height:14px;"></div>
     <div class="fee-input-grid">
       <div class="fee-field"><label>Processing fee %</label><input type="number" id="fee-pf-pct" value="1.5" min="0" max="100" step="0.01" oninput="feeCalc()" /></div>
       <div class="fee-field"><label>Processing fixed fee</label><input type="number" id="fee-pf-fixed" value="25" min="0" step="0.01" oninput="feeCalc()" /></div>
@@ -1327,29 +1314,6 @@ function feeCalc() {
 
 feeCalc();
 
-async function loadFeeType(type, btn) {
-  const status  = document.getElementById('fee-type-status');
-  const allBtns = document.querySelectorAll('.fee-type-btn');
-  allBtns.forEach(b => { b.classList.remove('active'); b.disabled = true; });
-  status.textContent = `Fetching ${type} config…`;
-  try {
-    const res  = await fetch(`/api/fee-config?type=${type}`);
-    const data = await res.json();
-    if (!data.ok) throw new Error(data.error || 'Failed');
-    document.getElementById('fee-pf-pct').value   = data.pf_pct;
-    document.getElementById('fee-pf-fixed').value = data.pf_fixed;
-    if (data.fee_logic) setFeeMode(data.fee_logic.toLowerCase());
-    btn.classList.add('active');
-    status.style.color = 'var(--success)';
-    status.textContent = `✓ Loaded ${type} — ${data.pf_pct}% fee, ${data.pf_fixed} fixed (${data.fee_logic})`;
-    feeCalc();
-  } catch(e) {
-    status.style.color = 'var(--danger)';
-    status.textContent = `✗ Failed to load ${type}: ${e.message}`;
-  } finally {
-    allBtns.forEach(b => b.disabled = false);
-  }
-}
 </script>
 </body>
 </html>
