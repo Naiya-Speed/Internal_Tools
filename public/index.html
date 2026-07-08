@@ -910,7 +910,7 @@ async function runDeposit() {
         type: "microdeposit", amount: "0.5", currency: "usd",
         developer_fee_amount: "0", exchange_fee_amount: "0", subtotal_amount: "0.5", gas_fee: "0.0",
         created_at: new Date().toISOString(), deposit_id: depositId, destination_tx_hash: null,
-        source: { payment_rail:"ach_push", reference:"Order reF123456", iban:"DE89370400440532013000", iban_last_4:"3000", bic:"COBADEFFXXX", sender_name:"usa bank", recipient_name:"Bridge US", uetr:"a7ed4827-7b6f-4491-a06f-b548d5a7513e", payment_scheme:"sepa_credit", sender_bank_routing_number:"deposit1" },
+        source: { payment_rail:"ach_push", recipient_name:"Bridge EU", reference:"Order reF123456", iban:"DE89370400440532013000", iban_last_4:"3000", bic:"COBADEFFXXX", uetr:"a7ed4827-7b6f-4491-a06f-b548d5a7513e", sender_name:"usa bank", payment_scheme:"sepa_credit", sender_bank_routing_number:"deposit1", trace_number:"123", originator_name:"Wire Bank", bank_routing_number:"wire123", imad:"896", wire_message:"wire deposit", clabe:"072180000100000001", tracking_number:"567", sort_code:"20-00-00", account_number:"11223344", last_4:"6699" },
         destination_payment_rail: "base",
       }
     };
@@ -937,14 +937,15 @@ async function runDeposit() {
     }
   } else { fiatAmt = usdc; exchangeRate = "1.0"; }
 
+  const commonSource = { recipient_name:"Bridge EU", reference:"Order reF123456", iban:"DE89370400440532013000", iban_last_4:"3000", bic:"COBADEFFXXX", uetr:"a7ed4827-7b6f-4491-a06f-b548d5a7513e", sender_name:"usa bank", payment_scheme:"sepa_credit", sender_bank_routing_number:"deposit1", trace_number:"123", originator_name:"Wire Bank", bank_routing_number:"wire123", imad:"896", wire_message:"wire deposit", clabe:"072180000100000001", tracking_number:"567", sort_code:"20-00-00", account_number:"11223344", last_4:"6699" };
   const sources = {
-    ach_push:        { payment_rail:"ach_push",        reference:"Order reF123456", iban:"DE89370400440532013000", iban_last_4:"3000", bic:"COBADEFFXXX", sender_name:"usa bank",    recipient_name:"Bridge US", uetr:"a7ed4827-7b6f-4491-a06f-b548d5a7513e", payment_scheme:"ach_push",        sender_bank_routing_number:"deposit1" },
-    wire:            { payment_rail:"wire",            reference:"Order reF123456", iban:"DE89370400440532013000", iban_last_4:"3000", bic:"COBADEFFXXX", sender_name:"usa bank",    recipient_name:"Bridge US", uetr:"a7ed4827-7b6f-4491-a06f-b548d5a7513e", payment_scheme:"wire",            sender_bank_routing_number:"deposit1" },
-    fednow:          { payment_rail:"fednow",          reference:"Order reF123456", iban:"DE89370400440532013000", iban_last_4:"3000", bic:"COBADEFFXXX", sender_name:"usa bank",    recipient_name:"Bridge US", uetr:"a7ed4827-7b6f-4491-a06f-b548d5a7513e", payment_scheme:"fednow",          sender_bank_routing_number:"deposit1" },
-    sepa:            { payment_rail:"sepa",            reference:"Order reF123456", iban:"DE89370400440532013000", iban_last_4:"3000", bic:"COBADEFFXXX", sender_name:"EU Bank",     recipient_name:"Bridge EU", uetr:"a7ed4827-7b6f-4491-a06f-b548d5a7513e", payment_scheme:"sepa_credit",     sender_bank_routing_number:"deposit1" },
-    faster_payments: { payment_rail:"faster_payments", reference:"Order reF123456", sender_name:"UK Bank",     recipient_name:"Bridge UK", payment_scheme:"faster_payments", sender_bank_routing_number:"deposit1" },
-    pix:             { payment_rail:"pix",             reference:"Order reF123456", sender_name:"Brazil Bank", recipient_name:"Bridge BR", payment_scheme:"pix",             sender_bank_routing_number:"deposit1" },
-    spei:            { payment_rail:"spei",            reference:"Order reF123456", sender_name:"Mexico Bank", recipient_name:"Bridge MX", payment_scheme:"spei",            sender_bank_routing_number:"deposit1" },
+    ach_push:        { payment_rail:"ach_push",        ...commonSource },
+    wire:            { payment_rail:"wire",            ...commonSource },
+    fednow:          { payment_rail:"fednow",          ...commonSource },
+    sepa:            { payment_rail:"sepa",            ...commonSource },
+    faster_payments: { payment_rail:"faster_payments", ...commonSource },
+    pix:             { payment_rail:"pix",             ...commonSource },
+    spei:            { payment_rail:"spei",            ...commonSource },
   };
   source = sources[s.paymentRail];
   const receipt = makeReceipt(fiatAmt, exchangeRate, usdc, txEvm);
